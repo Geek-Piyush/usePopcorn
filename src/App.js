@@ -77,6 +77,7 @@ export default function App() {
   function handleDeleteWatchedMovie(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
+
   useEffect(
     function () {
       const controller = new AbortController();
@@ -104,9 +105,9 @@ export default function App() {
           setMovies(data.Search);
           setError("");
         } catch (err) {
-          console.log(err.message);
           if (err.name !== "AbortError") {
             setError(err.message);
+            console.log(err.message);
           }
         } finally {
           setIsLoading(false);
@@ -122,6 +123,7 @@ export default function App() {
         return;
       }
 
+      handleCloseMovieDetail();
       fetchMovies();
 
       return function () {
@@ -326,7 +328,20 @@ function MovieDetail({
   }
 
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
-
+  useEffect(
+    function () {
+      function callback(e) {
+        if (e.code === "Escape") {
+          handleCloseMovieDetail();
+        }
+      }
+      document.addEventListener("keydown", callback);
+      return function () {
+        document.removeEventListener("keydown", callback);
+      };
+    },
+    [handleCloseMovieDetail]
+  );
   useEffect(
     function () {
       async function getMovieDetails() {
@@ -407,7 +422,7 @@ function MovieDetail({
             <p>Directed By {director}</p>
           </section>
 
-          {selectedId}
+          {/* {selectedId} */}
         </>
       )}
     </div>
